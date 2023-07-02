@@ -10,5 +10,13 @@
         "ecmaVersion": "latest"
     },
     "rules": {
+        "camelcase": "off",
+        "indent": "off",
+        "no-tabs": "off",
+        "no-underscore-dangle": "off",
+        "class-methods-use-this": "off",
+        "no-unused-vars": "off",
+        "prefer-destructuring": "off",
+        "linebreak-style": "off"
     }
 }
