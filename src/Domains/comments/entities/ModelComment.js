@@ -2,16 +2,21 @@ class ModelComment {
     constructor(payload) {
         this._verifyPayload(payload);
 
-        this.id = payload.id;
-        this.username = payload.username;
-        this.date = payload.date;
-        this.content = (payload.isDeleted) ? '**komentar telah dihapus**' : payload.content;
+        const {
+            id, username, date, content, isDeleted,
+        } = payload;
+
+        this.id = id;
+        this.username = username;
+        this.date = date;
+        this.content = (isDeleted) ? '**komentar telah dihapus**' : content;
+        this.isDeleted = isDeleted;
     }
 
     _verifyPayload({
         id, username, date, content, isDeleted,
     }) {
-        if (!id || !username || !date || !content || typeof isDeleted === 'undefined') {
+        if (!id || !username || !date || !content) {
             throw new Error('COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
         }
 

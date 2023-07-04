@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 
 class AddCommentUseCase {

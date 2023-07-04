@@ -193,11 +193,13 @@ describe('CommentRepositoryPostgres', () => {
             expect(comment.username).toStrictEqual(dummyUser.username);
             expect(comment.content).toStrictEqual('A comment');
             expect(comment.date.getDate()).toStrictEqual(new Date().getDate());
+            expect(comment.isDeleted).toEqual(false);
 
             expect(deletedComment.id).toStrictEqual('comment-xyz');
             expect(deletedComment.username).toStrictEqual(dummyUser2.username);
             expect(deletedComment.content).toStrictEqual('**komentar telah dihapus**');
             expect(deletedComment.date.getDate()).toStrictEqual(new Date().getDate());
+            expect(deletedComment.isDeleted).toEqual(true);
         });
     });
 
