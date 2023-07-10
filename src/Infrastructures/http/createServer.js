@@ -26,6 +26,13 @@ const createServer = async (container) => {
         return response;
       },
     },
+    {
+      method: 'GET',
+      path: '/welcome',
+      handler: () => ({
+        value: 'Test Trigger CI',
+      }),
+    },
   ]);
 
   // external plugins
