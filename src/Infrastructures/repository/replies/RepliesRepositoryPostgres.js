@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const RepliesRepository = require('../../../Domains/replies/RepliesRepository');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const ModelReply = require('../../../Domains/replies/entities/ModelReply');
@@ -28,20 +27,31 @@ class RepliesRepositoryPostgres extends RepliesRepository {
 
     async verifyReplyAccess(replyId, userId) {
         const query = {
-            text: 'SELECT owner FROM replies WHERE id = $1',
+            text: 'SELECT 1 FROM replies WHERE id = $1 AND owner = $2',
+            values: [replyId, userId],
+        };
+
+        const { rowCount } = await this._pool.query(query);
+
+        if (!rowCount) {
+            throw new AuthorizationError('anda tidak dapat mengakses resource ini');
+        }
+    }
+
+    async verifyReplyIsExist(replyId) {
+        const query = {
+            text: 'SELECT id FROM replies WHERE id = $1',
             values: [replyId],
         };
 
-        const { rows, rowCount } = await this._pool.query(query);
+        const result = await this._pool.query(query);
 
-        if (!rowCount) throw new NotFoundError('balasan tidak ditemukan');
-
-        if (rows[0].owner !== userId) throw new AuthorizationError('anda tidak dapat mengakses resource ini');
+        if (!result.rowCount) {
+            throw new NotFoundError('balasan tidak ditemukan');
+        }
     }
 
-    async deleteReply(replyId, userId) {
-        await this.verifyReplyAccess(replyId, userId);
-
+    async deleteReply(replyId) {
         const query = {
             text: `
                 UPDATE replies SET is_deleted = TRUE
@@ -50,34 +60,46 @@ class RepliesRepositoryPostgres extends RepliesRepository {
             values: [replyId],
         };
 
-        await this._pool.query(query);
+        const result = await this._pool.query(query);
+
+        if (!result.rowCount) {
+            throw new NotFoundError('balasan tidak ditemukan');
+        }
     }
 
     async repliesFromComment(commentId) {
         const query = {
             text: `
-            SELECT 
-                replies.id, 
-                users.username, 
-                replies.date, 
-                replies.content, 
+            SELECT
+                replies.id,
+                users.username,
+                replies.date,
+                replies.content,
                 replies.is_deleted AS "isDeleted"
-            FROM replies 
-            LEFT JOIN users 
+            FROM replies
+            LEFT JOIN users
                 ON replies.owner = users.id
             WHERE comment_id = $1
-            GROUP BY 
+            GROUP BY
                 replies.id, users.username
             ORDER BY date
             `,
+            // Hint Reviewer Notes
+            // text: `
+            //         SELECT replies.*, users.username
+            //         FROM replies
+            //         INNER JOIN users ON users.id = replies.owner
+            //         WHERE replies.comment_id = ANY($1::text[])
+            //     `,
             values: [commentId],
         };
 
-        const { rows, rowCount } = await this._pool.query(query);
+        const result = await this._pool.query(query);
 
-        if (!rowCount) return [];
-
-        return rows.map((val) => new ModelReply(val));
+        if (!result.rowCount) {
+            return [];
+        }
+        return result.rows.map((val) => new ModelReply(val));
     }
 }
 

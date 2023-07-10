@@ -2,10 +2,15 @@ class ModelReply {
     constructor(payload) {
         this._verifyPayload(payload);
 
-        this.id = payload.id;
-        this.username = payload.username;
-        this.date = payload.date;
-        this.content = (payload.isDeleted) ? '**balasan telah dihapus**' : payload.content;
+        const {
+            id, username, date, content, isDeleted,
+        } = payload;
+
+        this.id = id;
+        this.username = username;
+        this.date = date;
+        this.content = (isDeleted) ? '**balasan telah dihapus**' : content;
+        this.isDeleted = isDeleted;
     }
 
     _verifyPayload({

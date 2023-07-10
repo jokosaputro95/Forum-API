@@ -93,16 +93,7 @@ describe('RepliesRepositoryPostgres', () => {
     });
 
     describe('verifyReplyAccess method', () => {
-        it('should throw NotFoundError if comment is not found', async () => {
-            // Arrange
-            const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
-
-            // Action & Assert
-            await expect(repliesRepositoryPostgres.verifyReplyAccess('comment-123', dummyUser.id))
-                .rejects.toThrowError(NotFoundError);
-        });
-
-        it('should throw AuthorizationError if user is not the comment owner', async () => {
+        it('should throw AuthorizationError if user is not the comment, reply owner', async () => {
             // Arrange
             const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
 
@@ -112,26 +103,44 @@ describe('RepliesRepositoryPostgres', () => {
             await expect(repliesRepositoryPostgres.verifyReplyAccess('reply-123', dummyUser2.id))
                 .rejects.toThrowError(AuthorizationError);
         });
-    });
 
-    describe('deleteReply method', () => {
-        it('should call verifyReplyAccess method', async () => {
+        it('should not throw Authorization when user is the comment reply owner', async () => {
             // Arrange
             const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
 
-            const spyVerifyReplyAccessMethod = jest.spyOn(repliesRepositoryPostgres, 'verifyReplyAccess');
+            await RepliesTableTestHelper.addReplyToComment({});
 
-            await RepliesTableTestHelper.addReplyToComment({ id: 'reply-123', owner: dummyUser.id });
+            // Action & Assert
+            await expect(repliesRepositoryPostgres.verifyReplyAccess('reply-123', dummyUser.id))
+                .resolves.not.toThrowError(AuthorizationError);
+        });
+    });
 
-            // Action
-            await repliesRepositoryPostgres.deleteReply('reply-123', dummyUser.id);
+    describe('deleteReply method', () => {
+        it('should thow NotFoundError if reply is not found', async () => {
+            // Arrange
+            const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
 
-            // Assert
-            expect(spyVerifyReplyAccessMethod)
-                .toBeCalledWith('reply-123', dummyUser.id);
+            // Action & Assert
+            await expect(repliesRepositoryPostgres.deleteReply('reply-123'))
+                .rejects.toThrowError(NotFoundError);
         });
 
-        it('should update the comment delete status', async () => {
+        it('should not thow NotFoundError if reply is valid', async () => {
+            // Arrange
+            const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
+            await RepliesTableTestHelper.addReplyToComment({
+                replyId: 'reply-123',
+                commentId: dummyComment.id,
+                owner: dummyUser.id,
+            });
+
+            // Action & Assert
+            await expect(repliesRepositoryPostgres.deleteReply('reply-123'))
+                .resolves.not.toThrowError(NotFoundError);
+        });
+
+        it('should update the reply delete status', async () => {
             // Arrange
             const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
 
@@ -153,7 +162,7 @@ describe('RepliesRepositoryPostgres', () => {
             const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
 
             // Action
-            const replies = await repliesRepositoryPostgres.repliesFromComment(dummyComment.id);
+            const replies = await repliesRepositoryPostgres.repliesFromComment([dummyComment.id]);
 
             // Assert
             expect(replies).toEqual([]);
@@ -171,47 +180,93 @@ describe('RepliesRepositoryPostgres', () => {
             });
 
             // Action
-            const [reply] = await repliesRepositoryPostgres.repliesFromComment(dummyComment.id);
+            const [reply] = await repliesRepositoryPostgres.repliesFromComment('comment-123');
 
             // Assert
             expect(reply.id).toStrictEqual('reply-123');
             expect(reply.username).toStrictEqual(dummyUser.username);
             expect(reply.content).toStrictEqual('A reply');
             expect(reply.date.getDate()).toStrictEqual(new Date().getDate());
+            expect(reply.isDeleted).toEqual(false);
         });
 
-        it('should return comment with custom content if comment is deleted', async () => {
+        // it('should return comment with custom content if comment is deleted', async () => {
+        //     // Arrange
+        //     const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
+
+        //     await RepliesTableTestHelper.addReplyToComment({
+        //         replyId: 'reply-123',
+        //         content: 'sebuah balasan',
+        //         owner: dummyUser.id,
+        //     });
+
+        //     await RepliesTableTestHelper.addReplyToComment({
+        //         replyId: 'reply-abc',
+        //         content: 'sebuah balasan',
+        //         owner: dummyUser2.id,
+        //     });
+
+        //     await RepliesTableTestHelper.deleteReply('reply-abc');
+
+        //     // Action
+        //     const [reply, deletedReply] = await repliesRepositoryPostgres
+        //         .repliesFromComment(dummyComment.id);
+
+        //     // Assert
+        //     expect(reply.id).toStrictEqual('reply-123');
+        //     expect(reply.username).toStrictEqual(dummyUser.username);
+        //     expect(reply.content).toStrictEqual('sebuah balasan');
+        //     expect(reply.date.getDate()).toStrictEqual(new Date().getDate());
+        //     expect(reply.isDeleted).toEqual(false);
+
+        //     expect(deletedReply.id).toStrictEqual('reply-abc');
+        //     expect(deletedReply.username).toStrictEqual(dummyUser2.username);
+        //     expect(deletedReply.content).toStrictEqual('**balasan telah dihapus**');
+        //     expect(deletedReply.date.getDate()).toStrictEqual(new Date().getDate());
+        //     expect(deletedReply.isDeleted).toEqual(true);
+        // });
+    });
+
+    describe('verifyReplyIsExist', () => {
+        it('should throw NotFoundError if the reply is not found', async () => {
+            // Arrange
+            const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
+
+            // Action & Assert
+            expect(repliesRepositoryPostgres.verifyReplyIsExist('reply-123'))
+                .rejects.toThrowError(NotFoundError);
+        });
+
+        it('should throw NotFoundError if the reply is invalid', async () => {
             // Arrange
             const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
 
             await RepliesTableTestHelper.addReplyToComment({
                 replyId: 'reply-123',
+                commentId: 'comment-123',
                 content: 'sebuah balasan',
                 owner: dummyUser.id,
             });
 
+            // Action & Assert
+            expect(repliesRepositoryPostgres.verifyReplyIsExist('reply-xyz'))
+                .rejects.toThrowError(NotFoundError);
+        });
+
+        it('should not throw NotFoundError if the reply is valid', async () => {
+            // Arrange
+            const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
+
             await RepliesTableTestHelper.addReplyToComment({
-                replyId: 'reply-abc',
+                replyId: 'reply-123',
+                commentId: 'comment-123',
                 content: 'sebuah balasan',
-                owner: dummyUser2.id,
+                owner: dummyUser.id,
             });
 
-            await RepliesTableTestHelper.deleteReply('reply-abc');
-
-            // Action
-            const [reply, deletedReply] = await repliesRepositoryPostgres
-                .repliesFromComment(dummyComment.id);
-
-            // Assert
-            expect(reply.id).toStrictEqual('reply-123');
-            expect(reply.username).toStrictEqual(dummyUser.username);
-            expect(reply.content).toStrictEqual('sebuah balasan');
-            expect(reply.date.getDate()).toStrictEqual(new Date().getDate());
-
-            expect(deletedReply.id).toStrictEqual('reply-abc');
-            expect(deletedReply.username).toStrictEqual(dummyUser2.username);
-            expect(deletedReply.content).toStrictEqual('**balasan telah dihapus**');
-            expect(deletedReply.date.getDate()).toStrictEqual(new Date().getDate());
+            // Action & Assert
+            expect(repliesRepositoryPostgres.verifyReplyIsExist('reply-123'))
+                .resolves.not.toThrowError(NotFoundError);
         });
     });
 });

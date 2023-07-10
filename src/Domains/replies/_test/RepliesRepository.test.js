@@ -12,7 +12,10 @@ describe('ThreadCommentRepliesRepository', () => {
         await expect(repliesRepository.verifyReplyAccess('', ''))
             .rejects.toThrowError('REPLIES_REPOSITORY.METHOD_NOT_IMPLEMENTED');
 
-        await expect(repliesRepository.deleteReply('', ''))
+        await expect(repliesRepository.verifyReplyIsExist(''))
+            .rejects.toThrowError('REPLIES_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+
+        await expect(repliesRepository.deleteReply(''))
             .rejects.toThrowError('REPLIES_REPOSITORY.METHOD_NOT_IMPLEMENTED');
 
         await expect(repliesRepository.repliesFromComment(''))

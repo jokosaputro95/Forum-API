@@ -1,17 +1,18 @@
-/* eslint-disable no-unused-vars */
 class DeleteReplyUseCase {
-    constructor({ repliesRepository, commentRepository, threadRepository }) {
+    constructor({ repliesRepository }) {
         this._repliesRepository = repliesRepository;
-        this._commentRepository = commentRepository;
-        this._threadRepository = threadRepository;
     }
 
-    async execute(threadId, commentId, replyId, userId) {
-        await this._threadRepository.verifyThread(threadId);
+    async execute(useCaseDeletePayload) {
+        const {
+            replyId, userId,
+        } = useCaseDeletePayload;
 
-        await this._commentRepository.verifyCommentLocation(commentId, threadId);
+        await this._repliesRepository.verifyReplyIsExist(replyId);
 
-        return this._repliesRepository.deleteReply(replyId, userId);
+        await this._repliesRepository.verifyReplyAccess(replyId, userId);
+
+        return this._repliesRepository.deleteReply(replyId);
     }
 }
 

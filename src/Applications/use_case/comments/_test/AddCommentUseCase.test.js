@@ -19,14 +19,17 @@ describe('AddCommentUseCase', () => {
             owner,
         });
 
+        /** creating dependency of use case */
         const mockCommentRepository = new CommentRepository();
         const mockThreadRepository = new ThreadRepository();
 
+        /** mocking needed function */
         mockCommentRepository.addCommentToThread = jest.fn()
             .mockImplementation(() => Promise.resolve(mockAddedComment));
         mockThreadRepository.verifyThread = jest.fn()
             .mockImplementation(() => Promise.resolve());
 
+        /** creating use case instance */
         const addCommentUseCase = new AddCommentUseCase({
             commentRepository: mockCommentRepository,
             threadRepository: mockThreadRepository,

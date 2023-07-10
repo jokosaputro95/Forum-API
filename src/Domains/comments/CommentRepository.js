@@ -7,15 +7,15 @@ class CommentRepository {
         throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }
 
-    async deleteCommentById(commentId, userId) {
+    async verifyCommentIsExist(commentId, threadId) {
+        throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    }
+
+    async deleteCommentById(commentId) {
         throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }
 
     async commentsFromThread(threadId) {
-        throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    }
-
-    async verifyCommentLocation(commentId, threadId) {
         throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }
 }

@@ -45,10 +45,12 @@ describe('GetThreadDetailUseCase', () => {
             }),
         ];
 
+        /** creating dependency of use case */
         const mockThreadRepository = new ThreadRepository();
         const mockCommentRepository = new CommentRepository();
         const mockRepliesRepository = new RepliesRepository();
 
+        /** mocking needed function */
         mockThreadRepository.getThreadById = jest.fn()
             .mockImplementation(() => Promise.resolve(mockThread));
         mockCommentRepository.commentsFromThread = jest.fn()
@@ -56,6 +58,7 @@ describe('GetThreadDetailUseCase', () => {
         mockRepliesRepository.repliesFromComment = jest.fn()
             .mockImplementation(() => Promise.resolve(mockReplies));
 
+        /** creating use case instance */
         const usecase = new GetThreadDetailUseCase({
             threadRepository: mockThreadRepository,
             commentRepository: mockCommentRepository,
@@ -112,16 +115,19 @@ describe('GetThreadDetailUseCase', () => {
         expect(comments[0].username).toStrictEqual(expectedComments[0].username);
         expect(comments[0].date.getDate()).toStrictEqual(expectedComments[0].date.getDate());
         expect(comments[0].content).toStrictEqual(expectedComments[0].content);
+        expect(comments[0].isDeleted).toEqual(false);
 
         expect(replies[0].id).toStrictEqual(expectedReplies[0].id);
         expect(replies[0].username).toStrictEqual(expectedReplies[0].username);
         expect(replies[0].date.getDate()).toStrictEqual(expectedReplies[0].date.getDate());
         expect(replies[0].content).toStrictEqual(expectedReplies[0].content);
+        expect(replies[0].isDeleted).toEqual(false);
 
         expect(replies[1].id).toStrictEqual(expectedReplies[1].id);
         expect(replies[1].username).toStrictEqual(expectedReplies[1].username);
         expect(replies[1].date.getDate()).toStrictEqual(expectedReplies[1].date.getDate());
         expect(replies[1].content).toStrictEqual(expectedReplies[1].content);
+        expect(replies[1].isDeleted).toEqual(true);
 
         expect(mockThreadRepository.getThreadById).toBeCalledWith('thread-123');
         expect(mockCommentRepository.commentsFromThread).toBeCalledWith('thread-123');

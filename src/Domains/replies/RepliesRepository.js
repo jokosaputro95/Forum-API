@@ -7,7 +7,11 @@ class RepliesRepository {
         throw new Error('REPLIES_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }
 
-    async deleteReply(replyId, userId) {
+    async verifyReplyIsExist(replyId) {
+        throw new Error('REPLIES_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    }
+
+    async deleteReply(replyId) {
         throw new Error('REPLIES_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     }
 

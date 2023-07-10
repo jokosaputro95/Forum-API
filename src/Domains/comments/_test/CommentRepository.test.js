@@ -12,13 +12,13 @@ describe('CommentRepository', () => {
         await expect(commentRepository.verifyCommentAccess('', ''))
             .rejects.toThrowError('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
 
-        await expect(commentRepository.deleteCommentById('', ''))
+        await expect(commentRepository.verifyCommentIsExist('', ''))
+            .rejects.toThrowError('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+
+        await expect(commentRepository.deleteCommentById(''))
             .rejects.toThrowError('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
 
         await expect(commentRepository.commentsFromThread(''))
-            .rejects.toThrowError('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-
-        await expect(commentRepository.verifyCommentLocation('', ''))
             .rejects.toThrowError('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     });
 });

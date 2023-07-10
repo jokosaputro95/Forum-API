@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 
 class AddReplyUseCase {
@@ -13,7 +12,7 @@ class AddReplyUseCase {
 
         await this._threadRepository.verifyThread(threadId);
 
-        await this._commentRepository.verifyCommentLocation(commentId, threadId);
+        await this._commentRepository.verifyCommentIsExist(commentId, threadId);
 
         return this._repliesRepository.addReplyToComment(commentId, newReply, owner);
     }

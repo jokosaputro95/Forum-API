@@ -66,12 +66,17 @@ class ThreadsHandler {
 
     async deleteCommentHandler(request, h) {
         const { threadId, commentId } = request.params;
-        const { id } = request.auth.credentials;
+        const { id: credentialId } = request.auth.credentials;
 
         const deleteCommentUseCase = this._container
             .getInstance(DeleteCommentUseCase.name);
 
-        await deleteCommentUseCase.execute(threadId, commentId, id);
+        // await deleteCommentUseCase.execute(threadId, commentId, id);
+        await deleteCommentUseCase.execute({
+            threadId,
+            commentId,
+            userId: credentialId,
+        });
 
         const response = h.response({
             status: 'success',
@@ -100,12 +105,17 @@ class ThreadsHandler {
 
     async deleteReplyHandler(request, h) {
         const { threadId, commentId, replyId } = request.params;
-        const { id } = request.auth.credentials;
+        const { id: credentialId } = request.auth.credentials;
 
         const deleteReplyUseCase = this._container
             .getInstance(DeleteReplyUseCase.name);
 
-        await deleteReplyUseCase.execute(threadId, commentId, replyId, id);
+        await deleteReplyUseCase.execute({
+            threadId,
+            commentId,
+            replyId,
+            userId: credentialId,
+        });
 
         const response = h.response({
             status: 'success',

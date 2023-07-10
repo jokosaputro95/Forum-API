@@ -39,6 +39,7 @@ describe('a Comment entities', () => {
         expect(modelComment.username).toStrictEqual(payload.username);
         expect(modelComment.date).toStrictEqual(payload.date);
         expect(modelComment.content).toStrictEqual(payload.content);
+        expect(modelComment.isDeleted).toEqual(payload.isDeleted);
     });
 
     it('should create Comment object correctly with modified content when isDeleted argument is true', () => {
@@ -60,5 +61,6 @@ describe('a Comment entities', () => {
         expect(modelComment.username).toStrictEqual(payload.username);
         expect(modelComment.date).toStrictEqual(payload.date);
         expect(modelComment.content).toStrictEqual('**komentar telah dihapus**');
+        expect(modelComment.isDeleted).toEqual(payload.isDeleted);
     });
 });

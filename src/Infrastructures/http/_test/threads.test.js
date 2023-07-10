@@ -164,6 +164,38 @@ describe('/threads endpoint', () => {
     });
 
     describe('when GET /threads/{threadId}', () => {
+        it('should response 200 and show thread by id', async () => {
+            // Arrange
+            const threadId = 'thread-123';
+            await UsersTableTestHelper.addUser({
+                id: 'user-123',
+                username: 'dicoding',
+                password: 'secret',
+                fullname: 'Dicoding Indonesia',
+            });
+
+            await ThreadsTableTestHelper.addThread({
+                id: 'thread-123',
+                title: 'sebuah thread',
+                body: 'sebuah body thread',
+                owner: 'user-123',
+            });
+
+            const server = await createServer(container);
+
+            // Action
+            const response = await server.inject({
+                method: 'GET',
+                url: `/threads/${threadId}`,
+            });
+
+            // Assert
+            const responseJson = JSON.parse(response.payload);
+            expect(response.statusCode).toEqual(200);
+            expect(responseJson.status).toEqual('success');
+            expect(responseJson.data.thread).toBeDefined();
+        });
+
         it('should response 200 with valid thread structures (contain valid comments and replies)', async () => {
             // Arrange
             const requestAddUser1 = {

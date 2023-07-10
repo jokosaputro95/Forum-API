@@ -28,20 +28,31 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     async verifyCommentAccess(commentId, userId) {
         const query = {
-            text: 'SELECT owner FROM comments WHERE id = $1',
-            values: [commentId],
+            text: 'SELECT owner FROM comments WHERE id = $1 AND owner = $2',
+            values: [commentId, userId],
         };
 
-        const { rows, rowCount } = await this._pool.query(query);
+        const result = await this._pool.query(query);
 
-        if (!rowCount) throw new NotFoundError('komentar tidak ditemukan');
-
-        if (rows[0].owner !== userId) throw new AuthorizationError('anda tidak dapat mengakses resource ini');
+        if (!result.rowCount) {
+            throw new AuthorizationError('anda tidak dapat mengakses resource ini');
+        }
     }
 
-    async deleteCommentById(commentId, userId) {
-        await this.verifyCommentAccess(commentId, userId);
+    async verifyCommentIsExist(commentId, threadId) {
+        const query = {
+            text: 'SELECT 1 FROM comments WHERE id = $1 AND thread_id = $2',
+            values: [commentId, threadId],
+        };
 
+        const result = await this._pool.query(query);
+
+        if (!result.rowCount) {
+            throw new NotFoundError('komentar tidak ditemukan');
+        }
+    }
+
+    async deleteCommentById(commentId) {
         const query = {
             text: `
                 UPDATE comments SET is_deleted = TRUE
@@ -74,22 +85,6 @@ class CommentRepositoryPostgres extends CommentRepository {
         if (!rowCount) return [];
 
         return rows.map((val) => new ModelComment(val));
-    }
-
-    async verifyCommentLocation(commentId, threadId) {
-        const query = {
-            text: `
-            SELECT thread_id FROM comments
-            WHERE id = $1
-            `,
-            values: [commentId],
-        };
-
-        const { rows, rowCount } = await this._pool.query(query);
-
-        if (!rowCount) throw new NotFoundError('komentar tidak ditemukan');
-
-        if (rows[0].thread_id !== threadId) throw new NotFoundError('komentar tidak ditemukan pada thread ini');
     }
 }
 

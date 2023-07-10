@@ -706,7 +706,7 @@ describe('/replies endpoint', () => {
             expect(responseJson.message).toEqual('anda tidak dapat mengakses resource ini');
         });
 
-        it('should respond 404 status when the thread is not found', async () => {
+        it('should response 404 when the thread is not found', async () => {
             // Arrange
             const requestAddUser = {
                 id: 'user-123',
@@ -760,7 +760,7 @@ describe('/replies endpoint', () => {
                 },
             });
             const responseAddThreadJson = JSON.parse(responseAddThread.payload);
-            const threadId = responseAddThreadJson.data;
+            const threadId = responseAddThreadJson.data.addedThread.id;
 
             /* adding comment */
             const responseAddComment = await server.inject({
@@ -774,7 +774,7 @@ describe('/replies endpoint', () => {
                 },
             });
             const responseAddCommentJson = JSON.parse(responseAddComment.payload);
-            const commentId = responseAddCommentJson.data;
+            const commentId = responseAddCommentJson.data.addedComment.id;
 
             /* adding reply */
             const responseAddReply = await server.inject({
@@ -786,7 +786,7 @@ describe('/replies endpoint', () => {
                 },
             });
             const responseAddReplyJson = JSON.parse(responseAddReply.payload);
-            const replyId = responseAddReplyJson.data;
+            const replyId = responseAddReplyJson.data.addedReply;
 
             /* deleting reply */
             const response = await server.inject({
@@ -802,7 +802,7 @@ describe('/replies endpoint', () => {
 
             expect(response.statusCode).toEqual(404);
             expect(responseJson.status).toEqual('fail');
-            expect(responseJson.message).toEqual('thread tidak ditemukan');
+            expect(responseJson.message).toEqual('balasan tidak ditemukan');
         });
     });
 });

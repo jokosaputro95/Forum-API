@@ -80,44 +80,30 @@ describe('CommentRepositoryPostgres', () => {
     });
 
     describe('verifyCommentAccess method', () => {
-        it('should throw NotFoundError if comment is not found', async () => {
-            // Arrange
-            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
-            // Action & Assert
-            await expect(commentRepositoryPostgres.verifyCommentAccess('comment-123', dummyUser.id))
-                .rejects.toThrowError(NotFoundError);
-        });
-
         it('should throw AuthorizationError if user is not the comment owner', async () => {
             // Arrange
-            const repo = new CommentRepositoryPostgres(pool, {});
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
             await CommentsTableTestHelper.addCommentToThread({ id: 'comment-123', owner: dummyUser.id });
 
             // Action & Assert
-            await expect(repo.verifyCommentAccess('comment-123', dummyUser2.id))
+            await expect(commentRepositoryPostgres.verifyCommentAccess('comment-123', dummyUser2.id))
                 .rejects.toThrowError(AuthorizationError);
+        });
+
+        it('should not throw Authorization when user is the comment owner', async () => {
+            // Arrange
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+            await CommentsTableTestHelper.addCommentToThread({ id: 'comment-123', owner: dummyUser.id });
+
+            // Action & Assert
+            await expect(commentRepositoryPostgres.verifyCommentAccess('comment-123', dummyUser.id))
+                .resolves.not.toThrowError(AuthorizationError);
         });
     });
 
     describe('deleteCommentById method', () => {
-        it('should call verifyCommentAccess method', async () => {
-            // Arrange
-            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
-            const spyVerifyCommentAccessMethod = jest.spyOn(commentRepositoryPostgres, 'verifyCommentAccess');
-
-            await CommentsTableTestHelper.addCommentToThread({ id: 'comment-123', owner: dummyUser.id });
-
-            // Action
-            await commentRepositoryPostgres.deleteCommentById('comment-123', dummyUser.id);
-
-            // Assert
-            expect(spyVerifyCommentAccessMethod)
-                .toBeCalledWith('comment-123', dummyUser.id);
-        });
-
         it('should update the comment delete status', async () => {
             // Arrange
             const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -125,7 +111,7 @@ describe('CommentRepositoryPostgres', () => {
             await CommentsTableTestHelper.addCommentToThread({ id: 'comment-123', owner: dummyUser.id });
 
             // Action
-            await commentRepositoryPostgres.deleteCommentById('comment-123', dummyUser.id);
+            await commentRepositoryPostgres.deleteCommentById('comment-123');
 
             // Assert
             const [comment] = await CommentsTableTestHelper.findCommentById('comment-123');
@@ -164,6 +150,7 @@ describe('CommentRepositoryPostgres', () => {
             expect(comment.username).toStrictEqual(dummyUser.username);
             expect(comment.content).toStrictEqual('A comment');
             expect(comment.date.getDate()).toStrictEqual(new Date().getDate());
+            expect(comment.isDeleted).toEqual(false);
         });
 
         it('should return array of comments with custom content if comment is deleted', async () => {
@@ -203,31 +190,49 @@ describe('CommentRepositoryPostgres', () => {
         });
     });
 
-    describe('verifyCommentLocation method', () => {
-        // Arrange
-        const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
+    describe('verifyCommentIsExist method', () => {
         it('should throw NotFoundError if the comment is not found', async () => {
+            // Arrange
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+            await CommentsTableTestHelper.addCommentToThread({
+                commentId: 'comment-123',
+                threadId: dummyThread.id,
+                content: 'A comment',
+                owner: dummyUser.id,
+            });
+
             // Action & Assert
-            await expect(commentRepositoryPostgres.verifyCommentLocation('comment-123', dummyThread.id))
-                .rejects.toThrowError(new NotFoundError('komentar tidak ditemukan'));
+            await expect(commentRepositoryPostgres.verifyCommentIsExist('comment-321', dummyThread.id))
+                .rejects.toThrowError(NotFoundError);
         });
 
         it('should throw NotFoundError if the comment is invalid', async () => {
             // Arrange
-            await CommentsTableTestHelper.addCommentToThread({});
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+            await CommentsTableTestHelper.addCommentToThread({
+                commentId: 'comment-123',
+                threadId: dummyThread.id,
+                owner: dummyUser.id,
+            });
 
             // Action
-            await expect(commentRepositoryPostgres.verifyCommentLocation('comment-123', 'thread-xyz'))
-                .rejects.toThrowError(new NotFoundError('komentar tidak ditemukan pada thread ini'));
+            await expect(commentRepositoryPostgres.verifyCommentIsExist('comment-xyz', 'thread-123'))
+                .rejects.toThrowError(NotFoundError);
         });
 
         it('should not throw NotFoundError if the comment is valid', async () => {
             // Arrange
-            await CommentsTableTestHelper.addCommentToThread({});
+            await CommentsTableTestHelper.addCommentToThread({
+                commentId: 'comment-123',
+                threadId: dummyThread.id,
+                owner: dummyUser.id,
+            });
+
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
             // Action & Assert
-            await expect(commentRepositoryPostgres.verifyCommentLocation('comment-123', dummyThread.id))
+            expect(commentRepositoryPostgres.verifyCommentIsExist('comment-123', 'thread-123'))
                 .resolves.not.toThrowError(NotFoundError);
         });
     });

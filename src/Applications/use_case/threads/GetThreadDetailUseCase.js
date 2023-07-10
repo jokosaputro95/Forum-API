@@ -10,7 +10,6 @@ class GetThreadDetailUseCase {
         const rowComment = await this._commentRepository.commentsFromThread(threadId);
         const comments = await Promise.all(rowComment.map(async (val) => {
         const replies = await this._repliesRepository.repliesFromComment(val.id);
-
             return { ...val, replies };
         }));
 

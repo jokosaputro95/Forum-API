@@ -606,7 +606,7 @@ describe('/comments endpoint', () => {
 
             expect(response.statusCode).toEqual(404);
             expect(responseJson.status).toEqual('fail');
-            expect(responseJson.message).toEqual('thread tidak ditemukan');
+            expect(responseJson.message).toEqual('komentar tidak ditemukan');
         });
     });
 });
