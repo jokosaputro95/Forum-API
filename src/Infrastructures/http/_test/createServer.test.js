@@ -61,4 +61,22 @@ describe('HTTP server', () => {
     expect(responseJson.status).toEqual('success');
     expect(responseJson.message).toEqual(requestPayload.message);
   });
+
+  describe('when GET /welcome', () => {
+    it('should return 200', async () => {
+      // Arrange
+      const server = await createServer({});
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: '/welcome',
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.value).toEqual('Test Trigger CI');
+    });
+  });
 });
