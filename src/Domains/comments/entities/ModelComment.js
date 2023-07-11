@@ -16,7 +16,7 @@ class ModelComment {
     _verifyPayload({
         id, username, date, content, isDeleted,
     }) {
-        if (!id || !username || !date || !content || typeof isDeleted === 'undefined') {
+        if (!id || !username || !date || !content || isDeleted === 'undefined') {
             throw new Error('COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
         }
 

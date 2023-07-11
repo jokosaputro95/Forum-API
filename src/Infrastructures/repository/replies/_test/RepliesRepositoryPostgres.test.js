@@ -190,41 +190,41 @@ describe('RepliesRepositoryPostgres', () => {
             expect(reply.isDeleted).toEqual(false);
         });
 
-        // it('should return comment with custom content if comment is deleted', async () => {
-        //     // Arrange
-        //     const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
+        it('should return comment with custom content if comment is deleted', async () => {
+            // Arrange
+            const repliesRepositoryPostgres = new RepliesRepositoryPostgres(pool, {});
 
-        //     await RepliesTableTestHelper.addReplyToComment({
-        //         replyId: 'reply-123',
-        //         content: 'sebuah balasan',
-        //         owner: dummyUser.id,
-        //     });
+            await RepliesTableTestHelper.addReplyToComment({
+                replyId: 'reply-123',
+                content: 'sebuah balasan',
+                owner: dummyUser.id,
+            });
 
-        //     await RepliesTableTestHelper.addReplyToComment({
-        //         replyId: 'reply-abc',
-        //         content: 'sebuah balasan',
-        //         owner: dummyUser2.id,
-        //     });
+            await RepliesTableTestHelper.addReplyToComment({
+                replyId: 'reply-abc',
+                content: 'sebuah balasan',
+                owner: dummyUser2.id,
+            });
 
-        //     await RepliesTableTestHelper.deleteReply('reply-abc');
+            await RepliesTableTestHelper.deleteReply('reply-abc');
 
-        //     // Action
-        //     const [reply, deletedReply] = await repliesRepositoryPostgres
-        //         .repliesFromComment(dummyComment.id);
+            // Action
+            const [reply, deletedReply] = await repliesRepositoryPostgres
+                .repliesFromComment(dummyComment.id);
 
-        //     // Assert
-        //     expect(reply.id).toStrictEqual('reply-123');
-        //     expect(reply.username).toStrictEqual(dummyUser.username);
-        //     expect(reply.content).toStrictEqual('sebuah balasan');
-        //     expect(reply.date.getDate()).toStrictEqual(new Date().getDate());
-        //     expect(reply.isDeleted).toEqual(false);
+            // Assert
+            expect(reply.id).toStrictEqual('reply-123');
+            expect(reply.username).toStrictEqual(dummyUser.username);
+            expect(reply.content).toStrictEqual('sebuah balasan');
+            expect(reply.date.getDate()).toStrictEqual(new Date().getDate());
+            expect(reply.isDeleted).toEqual(false);
 
-        //     expect(deletedReply.id).toStrictEqual('reply-abc');
-        //     expect(deletedReply.username).toStrictEqual(dummyUser2.username);
-        //     expect(deletedReply.content).toStrictEqual('**balasan telah dihapus**');
-        //     expect(deletedReply.date.getDate()).toStrictEqual(new Date().getDate());
-        //     expect(deletedReply.isDeleted).toEqual(true);
-        // });
+            expect(deletedReply.id).toStrictEqual('reply-abc');
+            expect(deletedReply.username).toStrictEqual(dummyUser2.username);
+            expect(deletedReply.content).toStrictEqual('**balasan telah dihapus**');
+            expect(deletedReply.date.getDate()).toStrictEqual(new Date().getDate());
+            expect(deletedReply.isDeleted).toEqual(true);
+        });
     });
 
     describe('verifyReplyIsExist', () => {
