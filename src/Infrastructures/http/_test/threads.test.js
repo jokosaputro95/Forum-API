@@ -5,6 +5,7 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
+const CommentLikesTableTestHelper = require('../../../../tests/CommentLikesTableTestHelper');
 
 const container = require('../../container');
 const createServer = require('../createServer');
@@ -20,6 +21,7 @@ describe('/threads endpoint', () => {
         await ThreadsTableTestHelper.cleanTable();
         await CommentsTableTestHelper.cleanTable();
         await RepliesTableTestHelper.cleanTable();
+        await CommentLikesTableTestHelper.cleanTable();
     });
 
     describe('when POST /threads', () => {
@@ -196,8 +198,7 @@ describe('/threads endpoint', () => {
             expect(responseJson.data.thread).toBeDefined();
         });
 
-        it('should response 200 with valid thread structures (contain valid comments and replies)', async () => {
-            // Arrange
+        it('should respond with 200 with thread details and comments', async () => {
             const requestAddUser1 = {
                 id: 'user-123',
                 username: 'dicoding',
@@ -208,7 +209,7 @@ describe('/threads endpoint', () => {
                 id: 'user-xyz',
                 username: 'dicoding2',
                 password: 'supersecret',
-                fullname: 'Dicoding Indonesia',
+                fullname: 'Dicoding Indonesia 2',
             };
 
             const server = await createServer(container);
@@ -253,6 +254,12 @@ describe('/threads endpoint', () => {
 
             await RepliesTableTestHelper.deleteReply('reply-xyz');
 
+            await CommentLikesTableTestHelper.addLikeToComment({
+                id: 'like-123',
+                commentId: 'comment-123',
+                owner: requestAddUser1.id,
+            });
+
             // Action
             const response = await server.inject({
                 method: 'GET',
@@ -265,15 +272,15 @@ describe('/threads endpoint', () => {
             expect(response.statusCode).toStrictEqual(200);
             expect(responseJson.status).toStrictEqual('success');
 
-            const thread = responseJson.data.thread;
+            const threads = responseJson.data.thread;
 
-            expect(thread.id).toStrictEqual('thread-123');
-            expect(thread.title).toStrictEqual('sebuah thread');
-            expect(thread.body).toStrictEqual('sebuah body thread');
-            expect(new Date(thread.date).getDate()).toStrictEqual(new Date().getDate());
-            expect(thread.username).toStrictEqual(requestAddUser1.username);
+            expect(threads.id).toStrictEqual('thread-123');
+            expect(threads.title).toStrictEqual('sebuah thread');
+            expect(threads.body).toStrictEqual('sebuah body thread');
+            expect(new Date(threads.date).getDate()).toStrictEqual(new Date().getDate());
+            expect(threads.username).toStrictEqual(requestAddUser1.username);
 
-            const [requestAddUser1Comment, requestAddUser2Comment] = thread.comments;
+            const [requestAddUser1Comment, requestAddUser2Comment] = threads.comments;
 
             expect(requestAddUser1Comment.id).toStrictEqual('comment-123');
             expect(requestAddUser1Comment.username).toStrictEqual(requestAddUser1.username);
@@ -281,12 +288,14 @@ describe('/threads endpoint', () => {
                 .toStrictEqual(new Date().getDate());
             expect(requestAddUser1Comment.content)
                 .toStrictEqual(`komentar dari ${requestAddUser1.username}`);
+            expect(requestAddUser1Comment.likeCount).toEqual(1);
 
             expect(requestAddUser2Comment.id).toStrictEqual('comment-xyz');
             expect(requestAddUser2Comment.username).toStrictEqual(requestAddUser2.username);
             expect(new Date(requestAddUser2Comment.date).getDate())
                 .toStrictEqual(new Date().getDate());
             expect(requestAddUser2Comment.content).toStrictEqual('**komentar telah dihapus**');
+            expect(requestAddUser2Comment.likeCount).toEqual(0);
 
             const [requestAddUser1Reply, requestAddUser2Reply] = requestAddUser1Comment.replies;
 

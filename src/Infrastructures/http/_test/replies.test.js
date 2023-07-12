@@ -76,13 +76,13 @@ describe('/replies endpoint', () => {
             const responseAddThread = await server.inject({
                 method: 'POST',
                 url: '/threads',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
                 payload: {
                     id: 'thread-123',
                     title: requestThreadPayload.title,
                     body: requestThreadPayload.body,
+                },
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
                 },
             });
 
@@ -93,10 +93,10 @@ describe('/replies endpoint', () => {
             const responseAddComment = await server.inject({
                 method: 'POST',
                 url: `/threads/${threadId}/comments`,
+                payload: requestCommentPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
-                payload: requestCommentPayload,
             });
 
             const responseAddCommentJson = JSON.parse(responseAddComment.payload);
@@ -129,6 +129,7 @@ describe('/replies endpoint', () => {
             };
 
             const requestThreadPayload = {
+                id: 'thread-123',
                 title: 'A thread',
                 body: 'A thread body',
             };
@@ -138,7 +139,10 @@ describe('/replies endpoint', () => {
                 content: 'A comment',
             };
 
-            const requestReplyPayload = { content: 'A reply' };
+            const requestReplyPayload = {
+                id: 'reply-123',
+                content: 'A reply',
+            };
 
             const server = await createServer(container);
 
@@ -171,13 +175,9 @@ describe('/replies endpoint', () => {
             const responseAddThread = await server.inject({
                 method: 'POST',
                 url: '/threads',
+                payload: requestThreadPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
-                },
-                payload: {
-                    id: 'thread-123',
-                    title: requestThreadPayload.title,
-                    body: requestThreadPayload.body,
                 },
             });
 
@@ -187,10 +187,10 @@ describe('/replies endpoint', () => {
             const responseAddComment = await server.inject({
                 method: 'POST',
                 url: `/threads/${threadId}/comments`,
+                payload: requestCommentPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
-                payload: requestCommentPayload,
             });
 
             const responseAddCommentJson = JSON.parse(responseAddComment.payload);
@@ -219,6 +219,7 @@ describe('/replies endpoint', () => {
             };
 
             const requestThreadPayload = {
+                id: 'thread-123',
                 title: 'A thread',
                 body: 'A thread body',
             };
@@ -261,13 +262,9 @@ describe('/replies endpoint', () => {
             const responseAddThread = await server.inject({
                 method: 'POST',
                 url: '/threads',
+                payload: requestThreadPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
-                },
-                payload: {
-                    id: 'thread-123',
-                    title: requestThreadPayload.title,
-                    body: requestThreadPayload.body,
                 },
             });
 
@@ -277,10 +274,10 @@ describe('/replies endpoint', () => {
             const responseAddComment = await server.inject({
                 method: 'POST',
                 url: `/threads/${threadId}/comments`,
+                payload: requestCommentPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
-                payload: requestCommentPayload,
             });
 
             const responseAddCommentJson = JSON.parse(responseAddComment.payload);
@@ -345,10 +342,10 @@ describe('/replies endpoint', () => {
             const responseAddThread = await server.inject({
                 method: 'POST',
                 url: '/threads',
+                payload: {},
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
-                payload: {},
             });
 
             const responseAddThreadJson = JSON.parse(responseAddThread.payload);
@@ -357,10 +354,10 @@ describe('/replies endpoint', () => {
             const responseAddComment = await server.inject({
                 method: 'POST',
                 url: `/threads/${threadId}/comments`,
+                payload: {},
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
-                payload: {},
             });
 
             const responseAddCommentJson = JSON.parse(responseAddComment.payload);
@@ -397,6 +394,10 @@ describe('/replies endpoint', () => {
             const requestAddThreadPayload = {
                 title: 'new thread',
                 body: 'new thread body',
+            };
+
+            const requestAddCommentPayload = {
+                content: 'new comment',
             };
 
             const requestAddReplyPayload = {
@@ -445,9 +446,7 @@ describe('/replies endpoint', () => {
             const responseAddComment = await server.inject({
                 method: 'POST',
                 url: `/threads/${threadId}/comments`,
-                payload: {
-                    content: 'new comment',
-                },
+                payload: requestAddCommentPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -497,6 +496,10 @@ describe('/replies endpoint', () => {
                 body: 'new thread body',
             };
 
+            const requestAddCommentPayload = {
+                content: 'new comment',
+            };
+
             const requestAddReplyPayload = {
                 content: 'new reply',
             };
@@ -543,9 +546,7 @@ describe('/replies endpoint', () => {
             const responseAddComment = await server.inject({
                 method: 'POST',
                 url: `/threads/${threadId}/comments`,
-                payload: {
-                    content: 'new comment',
-                },
+                payload: requestAddCommentPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -720,6 +721,10 @@ describe('/replies endpoint', () => {
                 body: 'new thread body',
             };
 
+            const requestAddCommentPayload = {
+                content: 'new comment',
+            };
+
             const requestAddReplyPayload = {
                 content: 'new reply',
             };
@@ -766,9 +771,7 @@ describe('/replies endpoint', () => {
             const responseAddComment = await server.inject({
                 method: 'POST',
                 url: `/threads/${threadId}/comments`,
-                payload: {
-                    content: 'new comment',
-                },
+                payload: requestAddCommentPayload,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
