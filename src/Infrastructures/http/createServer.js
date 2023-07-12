@@ -17,14 +17,10 @@ const createServer = async (container) => {
     {
       method: 'GET',
       path: '/',
-      handler: (request, h) => {
-        const response = h.response({
-          status: 'success',
-          message: 'Welcome, to Forum API! test connection API successfully',
-        });
-        response.code(200);
-        return response;
-      },
+      handler: () => ({
+        status: 'success',
+        message: 'Welcome, to Forum API! test connection API successfully',
+      }),
     },
     {
       method: 'GET',
